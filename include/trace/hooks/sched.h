@@ -301,6 +301,11 @@ DECLARE_RESTRICTED_HOOK(android_rvh_uclamp_eff_get,
 		 struct uclamp_se *uclamp_max, struct uclamp_se *uclamp_eff, int *ret),
 	TP_ARGS(p, clamp_id, uclamp_max, uclamp_eff, ret), 1);
 
+DECLARE_RESTRICTED_HOOK(android_rvh_uclamp_eff_value,
+	TP_PROTO(struct task_struct *p, unsigned int clamp_id,
+		 unsigned int *value),
+	TP_ARGS(p, clamp_id, value), 1);
+
 DECLARE_RESTRICTED_HOOK(android_rvh_after_enqueue_task,
 	TP_PROTO(struct rq *rq, struct task_struct *p, int flags),
 	TP_ARGS(rq, p, flags), 1);

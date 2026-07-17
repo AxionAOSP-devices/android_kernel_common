@@ -1485,10 +1485,9 @@ static void uclamp_update_util_min_rt_default(struct task_struct *p)
 }
 
 static inline struct uclamp_se
-uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
+uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id,
+		   struct uclamp_se uc_req)
 {
-	/* Copy by value as we could modify it */
-	struct uclamp_se uc_req = p->uclamp_req[clamp_id];
 #ifdef CONFIG_UCLAMP_TASK_GROUP
 	unsigned int tg_min, tg_max, value;
 
@@ -1522,14 +1521,22 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
 static inline struct uclamp_se
 uclamp_eff_get(struct task_struct *p, enum uclamp_id clamp_id)
 {
-	struct uclamp_se uc_req = uclamp_tg_restrict(p, clamp_id);
+	/* Copy by value as we could modify it */
+	struct uclamp_se uc_req = p->uclamp_req[clamp_id];
 	struct uclamp_se uc_max = uclamp_default[clamp_id];
 	struct uclamp_se uc_eff;
+	unsigned int value = uc_req.value;
 	int ret = 0;
 
 	trace_android_rvh_uclamp_eff_get(p, clamp_id, &uc_max, &uc_eff, &ret);
 	if (ret)
 		return uc_eff;
+
+	trace_android_rvh_uclamp_eff_value(p, clamp_id, &value);
+	value = min_t(unsigned int, value, SCHED_CAPACITY_SCALE);
+	if (value != uc_req.value)
+		uclamp_se_set(&uc_req, value, uc_req.user_defined);
+	uc_req = uclamp_tg_restrict(p, clamp_id, uc_req);
 
 	/* System default restrictions always apply */
 	if (unlikely(uc_req.value > uc_max.value))
@@ -1755,6 +1762,18 @@ uclamp_update_active(struct task_struct *p)
 
 	task_rq_unlock(rq, p, &rf);
 }
+
+void android_uclamp_update_active(struct task_struct *p)
+{
+	uclamp_update_active(p);
+}
+EXPORT_SYMBOL_GPL(android_uclamp_update_active);
+
+void android_uclamp_enable(void)
+{
+	static_branch_enable(&sched_uclamp_used);
+}
+EXPORT_SYMBOL_GPL(android_uclamp_enable);
 
 #ifdef CONFIG_UCLAMP_TASK_GROUP
 static inline void
