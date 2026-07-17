@@ -50,6 +50,7 @@
 #include <trace/hooks/futex.h>
 #include <trace/hooks/fips140.h>
 #include <trace/hooks/dmabuf.h>
+#include <trace/hooks/input.h>
 #include <trace/hooks/gic.h>
 #include <trace/hooks/gic_v3.h>
 #include <trace/hooks/timer.h>
@@ -236,6 +237,7 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_dc_send_copy);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_dc_receive);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_check_bpf_syscall);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_ignore_dmabuf_vmap_bounds);
+EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_input_sync);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_rproc_recovery);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_rproc_recovery_set);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_rwsem_init);
